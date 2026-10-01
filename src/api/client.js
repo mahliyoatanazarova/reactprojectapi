@@ -1,32 +1,29 @@
-import { getToken } from '../utils/storage.js';
-import { mockRequest } from './mockServer.js';
+const BASE = import.meta.env.VITE_API_URL ?? 'https://petstore.swagger.io/v2';
 
-const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
-// .env da VITE_USE_MOCK=false qilsangiz, haqiqiy backendga so'rov ketadi
-const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
+export class ApiError extends Error {
+  constructor(status, message) {
+    super(message);
+    this.status = status;
+  }
+}
 
-export async function request(path, options = {}) {
-  if (USE_MOCK) return mockRequest(path, options);
-
-  const { method = 'GET', body, params } = options;
+export async function request(path, { method = 'GET', body, params } = {}) {
   const query = params
     ? '?' + new URLSearchParams(Object.entries(params).filter(([, v]) => v))
     : '';
-  const token = getToken();
 
-  const res = await fetch(BASE + path + query, {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const m = data.message;
-    throw new Error(Array.isArray(m) ? m.join(', ') : m || 'Xatolik yuz berdi');
+  let res;
+  try {
+    res = await fetch(BASE + path + query, {
+      method,
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch {
+    throw new ApiError(0, "Serverga ulanib bo'lmadi. Internetni tekshiring");
   }
+
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new ApiError(res.status, data?.message || 'Xatolik yuz berdi');
   return data;
 }

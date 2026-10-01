@@ -244,7 +244,7 @@ footer {
   border-radius: 16px;
   padding: 32px;
   max-width: 420px;
-  margin: 0 auto;
+  margin: 100px auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -291,4 +291,38 @@ footer {
   object-fit: cover;
   border-radius: 10px;
   border: 1px solid var(--line);
+}
+.field-err {
+  color: #b91c1c;
+  font-size: 13px;
+  font-weight: 400;
+}
+input[aria-invalid="true"] {
+  border-color: #b91c1c;
+}
+.pw {
+  position: relative;
+}
+.pw input {
+  padding-right: 104px;
+}
+.pw-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: none;
+  color: var(--brand);
+  font: 500 14px inherit;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.pw-toggle:focus-visible {
+  outline: 2px solid var(--brand);
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
